@@ -141,22 +141,19 @@ MIT License. See [LICENSE](LICENSE) for details.
 ---
 
 ## 💬 Credits & Inspiration
-- Designed and developed by [aromal-rm](https://github.com/aromal-rm)
+- Designed and developed by trinity
+- Trinity:
+      - [Aromal RM](https://github.com/aromal-rm)
+      - [Aron Mathew Tom](https://github.com/amtom2004)
+      - [Devanand M S](https://github.com/dms2004)
 - Inspired by inclusive design principles and the magic of nature
-
----
-
-## 📷 Screenshots
-![Menu](public/screenshots/menu.png)
-![Gameplay](public/screenshots/gameplay.png)
-![Creature Fact](public/screenshots/factbox.png)
 
 ---
 
 ## 🪄 Try It Now
 > **Ready to explore Echo Grove?**
 >
-> [Begin Your Adventure](#)
+> [Begin Your Adventure](https://carehack-trinity.vercel.app/)
 
 ---
 
@@ -164,8 +161,3 @@ MIT License. See [LICENSE](LICENSE) for details.
 Echo Grove was created to celebrate diversity and inclusion in games. We hope you enjoy your journey!
 
 ---
-
-<p align="center">
-  <img src="public/banner.png" alt="Echo Grove Banner" width="600" />
-</p>
-
