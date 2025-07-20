@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Volume2, Eye, Zap, Settings } from 'lucide-react';
 import GameEngine from './components/GameEngine';
 import Menu from './components/Menu';
@@ -17,7 +17,7 @@ function App() {
   const [talkBackEnabled, setTalkBackEnabled] = useState(true);
   const [audioInitialized, setAudioInitialized] = useState(false);
   
-  const { playSound, initializeAudio, startForestAmbience, stopForestAmbience } = useAudio();
+  const { initializeAudio, startForestAmbience, stopForestAmbience } = useAudio();
   const { speak } = useTalkBack(talkBackEnabled);
 
   useEffect(() => {

@@ -1,8 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Play } from 'lucide-react';
 import { AccessibilityMode } from '../types/GameTypes';
 import { creatures } from '../data/creatures';
-import { useTalkBack } from '../hooks/useTalkBack';
 import { useAudio } from '../hooks/useAudio';
 
 interface LevelIntroProps {

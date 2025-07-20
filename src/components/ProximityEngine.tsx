@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useAudio } from '../hooks/useAudio';
 import { useHaptics } from '../hooks/useHaptics';
 
@@ -17,7 +17,6 @@ const ProximityEngine: React.FC<ProximityEngineProps> = ({
   level,
   creatureSoundFile
 }) => {
-  const [proximity, setProximity] = useState(0);
   const { playCreatureSoundWithProximity } = useAudio();
   const { vibrate } = useHaptics();
   const lastHapticTime = useRef(0);
@@ -64,8 +63,6 @@ const ProximityEngine: React.FC<ProximityEngineProps> = ({
       adjustedProximity = Math.pow(proximityValue, power[level] || 0.5);
     }
     
-    setProximity(adjustedProximity);
-
     // Update sound with current proximity - our improved hook will handle
     // starting/stopping based on whether cursor is in radius
     playCreatureSoundWithProximity(creatureSoundFile, adjustedProximity);

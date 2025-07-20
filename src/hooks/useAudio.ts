@@ -39,7 +39,7 @@ export const useAudio = () => {
       soundFiles.forEach(soundFile => {
         const audio = new Audio(`sounds/creatures/${soundFile}`);
         audio.preload = 'auto';
-        audio.volume = 0.7;
+        audio.volume = 0.9; // Increased from 0.7 for more distinct creature sounds
         audio.onerror = () => {
           console.warn(`Could not load sound file: ${soundFile}`);
         };
@@ -53,7 +53,7 @@ export const useAudio = () => {
       const forestAudio = new Audio('sounds/ambient/forest.mp3');
       forestAudio.preload = 'auto';
       forestAudio.loop = true;
-      forestAudio.volume = 0.3;
+      forestAudio.volume = 0.10; // Reduced from 0.3 for less prominent ambient sound
       forestAudio.onerror = (e) => {
         console.warn('Could not load forest ambience file:', e);
       };
@@ -82,7 +82,7 @@ export const useAudio = () => {
       console.error('Forest ambience not loaded yet, creating now');
       const forestAudio = new Audio('sounds/ambient/forest.mp3');
       forestAudio.loop = true;
-      forestAudio.volume = 0.3;
+      forestAudio.volume = 0.10; // Reduced from 0.3 for less prominent ambient sound
       forestAudioRef.current = forestAudio;
     }
     
@@ -196,7 +196,7 @@ export const useAudio = () => {
     if (audio) {
       try {
         audio.currentTime = 0;
-        audio.volume = 0.8;
+        audio.volume = 0.9; // Increased from 0.8 for more distinct creature sounds
         await audio.play();
         console.log(`Successfully playing sound: ${fullPath}`);
         return;
@@ -230,8 +230,9 @@ export const useAudio = () => {
   const playCreatureSoundWithProximity = useCallback(async (creatureSound: string, proximity: number) => {
     console.log(`Proximity feedback for sound: ${creatureSound} with proximity: ${proximity}`);
     
-    // Lower threshold to start audio from farther away (from 0.2 to 0.1)
-    const isInRadius = proximity > 0.1;
+    // Significantly increase threshold to start audio from farther away
+    // Changed from 0.05 to 0.2 to activate sound at greater distances
+    const isInRadius = proximity > 0.2;
     
     try {
       // Make sure audio is initialized
@@ -265,34 +266,22 @@ export const useAudio = () => {
           // Store as active sound
           activeCreatureSoundsRef.current.set(fullPath, audio);
           
-          // Start with a lower volume and play immediately
-          audio.volume = 0.1;
+          // Enhanced volume scaling - more responsive at lower proximity values
+          // Minimum volume increased for better audibility at the detection edge
+          const volume = Math.min(1.0, 0.3 + (proximity * 0.7));
+          audio.volume = volume;
           
           try {
             await audio.play();
             console.log(`Successfully started playback for: ${fullPath}`);
-            
-            // Now apply the real volume after playback has started
-            // Create a more dynamic volume curve using exponential scaling for better perception
-            // Minimum volume 0.1, maximum 1.0 with non-linear scaling
-            const volumeCurve = Math.pow(proximity, 1.5); // Exponent enhances differences
-            const volume = 0.1 + (volumeCurve * 0.9); // Scale from 0.1 to 1.0
-            console.log(`Setting initial volume to ${volume.toFixed(2)} for proximity ${proximity.toFixed(2)}`);
-            audio.volume = volume;
           } catch (error) {
             console.error(`Error starting playback: ${error}`);
           }
         } else {
-          // Sound is already playing, update volume based on proximity
-          // Use exponential curve for more noticeable changes in volume
-          const volumeCurve = Math.pow(proximity, 1.5); // Non-linear scaling
-          const volume = 0.1 + (volumeCurve * 0.9); // Scale from 0.1 to 1.0
-          
-          // Only update if volume change is significant enough to be noticeable
-          if (Math.abs(audio.volume - volume) > 0.05) {
-            console.log(`Updating volume to ${volume.toFixed(2)} for proximity ${proximity.toFixed(2)}`);
-            audio.volume = volume;
-          }
+          // Sound is already playing, just adjust volume based on proximity
+          // Improved volume scaling for smoother transitions
+          const volume = Math.min(1.0, 0.3 + (proximity * 0.7));
+          audio.volume = volume;
         }
       } else if (activeSound && !activeSound.paused) {
         // Cursor exited radius - stop the sound
