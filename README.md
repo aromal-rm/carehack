@@ -23,16 +23,17 @@ Echo Grove is a modern, accessible web game that invites players to explore a ma
 - **Visual-First:** Watch for glowing patterns and visual feedback
 - **Multi-Sensory:** Combine audio, visual, and haptic feedback for a rich experience
 
-### Levels & Creatures
-| Level | Creature  | Icon  | Highlights |
-|-------|-----------|-------|------------|
-| 1     | Owl       | 🦉    | Silent flight, 270° head rotation |
-| 2     | Fox       | 🦊    | Magnetic sense, clever climber |
-| 3     | Deer      | 🦌    | Fast runner, antler regrowth |
-| 4     | Squirrel  | 🐿️    | Gliding, memory for thousands of nuts |
-| 5     | Phoenix   | 🔥    | Mythical rebirth, symbol of hope |
+## 📈 Difficulty Progression
 
-Each level features unique feedback and increasing difficulty, with more distractors and subtler clues as you progress.
+Each level introduces a new mystical creature and raises the challenge in subtle, immersive ways. Here's how the difficulty evolves:
+
+| Level | Creature  | Core Challenge                                               | Distractions                     | Navigation Complexity       |
+|-------|-----------|--------------------------------------------------------------|----------------------------------|-----------------------------|
+| 1     | Owl       | Locate using clear, single-directional indicators            | Minimal                          | Linear, guided              |
+| 2     | Fox       | Identify amidst one false cue                                | One distractor introduced        | Simple branching            |
+| 3     | Deer      | Pinpoint among moving elements                               | Multiple dynamic distractors     | Open-ended path             |
+| 4     | Squirrel  | Search with overlapping zones of interest                    | Decoy areas and mimicking cues   | Complex forest grid         |
+| 5     | Phoenix   | Discover with no initial clues; pattern learning required    | Rapidly changing misleads        | Maze-like structure         |
 
 ---
 
