@@ -42,6 +42,32 @@ const GameEngine: React.FC<GameEngineProps> = ({
   
   const currentCreature = creatures[level - 1];
 
+  // Calculate scaled creature position based on current game area size
+  const scaledCreaturePosition = useMemo(() => {
+    const baseWidth = 800; // Base design width
+    const baseHeight = 600; // Base design height
+    
+    // Convert the fixed position to percentages
+    const xPercent = currentCreature.position.x / baseWidth;
+    const yPercent = currentCreature.position.y / baseHeight;
+    
+    // Calculate the scaled position based on current game area
+    let scaledX = gameAreaSize.width * xPercent;
+    let scaledY = gameAreaSize.height * yPercent;
+    
+    // Apply boundary constraints (keep creature within visible area)
+    const creatureSize = 60; // Estimated size for the creature icon
+    const padding = 20; // Additional padding from edges
+    
+    // Constrain X position
+    scaledX = Math.max(padding, Math.min(scaledX, gameAreaSize.width - creatureSize - padding));
+    
+    // Constrain Y position
+    scaledY = Math.max(padding, Math.min(scaledY, gameAreaSize.height - creatureSize - padding));
+    
+    return { x: scaledX, y: scaledY };
+  }, [currentCreature.position, gameAreaSize]);
+
   // Generate decoys based on level difficulty
   const decoys = useMemo(() => {
     // No decoys at level 1
@@ -58,7 +84,7 @@ const GameEngine: React.FC<GameEngineProps> = ({
     if (decoyCount === 0) return [];
     
     const result: Decoy[] = [];
-    const creaturePos = currentCreature.position;
+    const creaturePos = scaledCreaturePosition; // Use the scaled position here
     const minDistFromCreature = level <= 3 ? 150 : 100; // Higher levels can have decoys closer to creature
     
     // Generate decoys with varied positions
@@ -122,7 +148,7 @@ const GameEngine: React.FC<GameEngineProps> = ({
     }
     
     return result;
-  }, [level, currentCreature, gameAreaSize.width, gameAreaSize.height]);
+  }, [level, scaledCreaturePosition, gameAreaSize.width, gameAreaSize.height]);
 
   useEffect(() => {
     const updateGameAreaSize = () => {
@@ -161,7 +187,7 @@ const GameEngine: React.FC<GameEngineProps> = ({
 
   const handleTouch = useCallback((e: React.TouchEvent) => {
     if (gameAreaRef.current && !isFound) {
-      e.preventDefault();
+      e.preventDefault(); // Prevent default scrolling behavior
       const rect = gameAreaRef.current.getBoundingClientRect();
       const touch = e.touches[0];
       const x = touch.clientX - rect.left;
@@ -226,7 +252,7 @@ const GameEngine: React.FC<GameEngineProps> = ({
   const renderAccessibilityMode = () => {
     const commonProps = {
       cursorPosition,
-      creaturePosition: currentCreature.position,
+      creaturePosition: scaledCreaturePosition, // Use scaled position
       detectionRadius: currentCreature.detectionRadius,
       gameAreaSize,
       onCreatureFound: handleCreatureFound,
@@ -262,10 +288,11 @@ const GameEngine: React.FC<GameEngineProps> = ({
       {/* Game Area */}
       <div
         ref={gameAreaRef}
-        className="relative bg-emerald-900/50 rounded-xl border-2 border-emerald-600/30 mx-auto backdrop-blur-sm"
+        className="relative bg-emerald-900/50 rounded-xl border-2 border-emerald-600/30 mx-auto backdrop-blur-sm touch-none"
         style={{ width: '100%', maxWidth: '800px', height: '600px' }}
         onMouseMove={handleMouseMove}
         onTouchMove={handleTouch}
+        onTouchStart={(e) => e.preventDefault()} // Prevent default on touchstart
         onKeyDown={handleKeyDown}
         tabIndex={0}
         role="application"
@@ -289,7 +316,7 @@ const GameEngine: React.FC<GameEngineProps> = ({
         {/* Main proximity engine for the real creature */}
         <ProximityEngine
           cursorPosition={cursorPosition}
-          creaturePosition={currentCreature.position}
+          creaturePosition={scaledCreaturePosition} // Use scaled position
           detectionRadius={currentCreature.detectionRadius}
           level={level}
           creatureSoundFile={currentCreature.soundFile}

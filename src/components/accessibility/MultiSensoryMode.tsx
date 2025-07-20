@@ -37,7 +37,7 @@ const MultiSensoryMode: React.FC<MultiSensoryModeProps> = ({
   const [proximity, setProximity] = useState(0);
   const [decoyProximities, setDecoyProximities] = useState<{[key: string]: number}>({});
   const { playCreatureSoundWithProximity, playTone } = useAudio();
-  const { vibrate } = useHaptics();
+  const { vibrateWithIntensity, vibrateProximityPattern } = useHaptics();
   const lastAudioTimeRef = useRef(0);
   const lastHapticTimeRef = useRef(0);
   const lastDecoyFeedbackRef = useRef<{[key: string]: number}>({});
@@ -137,7 +137,7 @@ const MultiSensoryMode: React.FC<MultiSensoryModeProps> = ({
         }
       }
 
-      // Haptic feedback with intensity based on proximity
+      // Enhanced haptic feedback with intensity based on proximity
       const hapticThreshold: Record<number, number> = {
         1: 0.1,  // Almost any proximity
         2: 0.15, // Slight proximity
@@ -147,19 +147,16 @@ const MultiSensoryMode: React.FC<MultiSensoryModeProps> = ({
       };
       
       if (proximityValue > (hapticThreshold[level] || 0.2) && now - lastHapticTimeRef.current > 300) {
-        // Haptic strength decreases with level
-        const hapticStrength = Math.floor(proximityValue * 150 * (1 - (level - 1) * 0.15));
-        
-        if (proximityValue > 0.7) {
-          // Very close - stronger vibration
-          vibrate(hapticStrength);
+        // Use distinct haptic patterns based on proximity zones
+        if (proximityValue > 0.8) {
+          // Very close - continuous strong vibration
+          vibrateProximityPattern(proximityValue);
+        } else if (proximityValue > 0.5) {
+          // Medium proximity - pulsing pattern
+          vibrateProximityPattern(proximityValue);
         } else {
-          // Further away - pattern based on level
-          if (level <= 3) {
-            vibrate([hapticStrength, 100, hapticStrength * 0.7, 100]);
-          } else {
-            vibrate(hapticStrength * 0.7); // Weaker for higher levels
-          }
+          // Lower proximity - single intensity-based pulse
+          vibrateWithIntensity(proximityValue);
         }
         
         lastHapticTimeRef.current = now;
@@ -183,7 +180,8 @@ const MultiSensoryMode: React.FC<MultiSensoryModeProps> = ({
     decoys,
     playCreatureSoundWithProximity,
     playTone,
-    vibrate
+    vibrateWithIntensity,
+    vibrateProximityPattern
   ]);
 
   const glowIntensity = proximity * 40;
@@ -205,6 +203,13 @@ const MultiSensoryMode: React.FC<MultiSensoryModeProps> = ({
         const decoyProximity = decoyProximities[decoy.id] || 0;
         if (decoyProximity <= 0.2) return null; // Only show somewhat close decoys
         
+        const size = decoyProximity * 120;
+        const halfSize = size / 2;
+        
+        // Calculate position with boundary constraints
+        const left = Math.max(0, Math.min(decoy.position.x - halfSize, gameAreaSize.width - size));
+        const top = Math.max(0, Math.min(decoy.position.y - halfSize, gameAreaSize.height - size));
+        
         return (
           <div
             key={decoy.id}
@@ -212,43 +217,68 @@ const MultiSensoryMode: React.FC<MultiSensoryModeProps> = ({
             style={{
               backgroundColor: `rgba(${decoy.color}, ${decoyProximity * 0.15})`,
               boxShadow: `0 0 ${decoyProximity * 20}px rgba(${decoy.color}, ${decoyProximity * 0.4})`,
-              width: decoyProximity * 120,
-              height: decoyProximity * 120,
-              left: decoy.position.x - (decoyProximity * 60),
-              top: decoy.position.y - (decoyProximity * 60),
+              width: size,
+              height: size,
+              left: left,
+              top: top,
             }}
             aria-hidden="true"
           />
         );
       })}
 
-      {/* Particle Effects - reduced at higher levels */}
+      {/* Particle Effects - with boundary constraints */}
       {proximity > (0.3 + (level * 0.05)) && (
         <div className="absolute inset-0 overflow-hidden">
-          {/* Fewer particles at higher levels */}
-          {[...Array(Math.min(10, Math.floor(proximity * 15 / level)))].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 rounded-full animate-pulse"
-              style={{
-                backgroundColor: `rgb(${creature.color})`,
-                left: `${creaturePosition.x + (Math.random() - 0.5) * (100 - (level * 10))}px`,
-                top: `${creaturePosition.y + (Math.random() - 0.5) * (100 - (level * 10))}px`,
-                animationDelay: `${i * 100}ms`,
-                opacity: Math.min(1, proximity * (1.2 - (level * 0.15)))
-              }}
-            />
-          ))}
+          {[...Array(Math.min(10, Math.floor(proximity * 15 / level)))].map((_, i) => {
+            // Calculate bounded position for particles
+            const particleSize = 2; // Width/height of particle
+            const variance = (100 - (level * 10)) / 2; // Half the range of random movement
+            
+            // Ensure particles stay within game area bounds
+            const randomX = Math.random() * 2 - 1; // Value between -1 and 1
+            const randomY = Math.random() * 2 - 1; // Value between -1 and 1
+            
+            const particleX = Math.max(
+              particleSize, 
+              Math.min(
+                creaturePosition.x + (randomX * variance), 
+                gameAreaSize.width - particleSize
+              )
+            );
+            
+            const particleY = Math.max(
+              particleSize, 
+              Math.min(
+                creaturePosition.y + (randomY * variance), 
+                gameAreaSize.height - particleSize
+              )
+            );
+            
+            return (
+              <div
+                key={i}
+                className="absolute w-2 h-2 rounded-full animate-pulse"
+                style={{
+                  backgroundColor: `rgb(${creature.color})`,
+                  left: `${particleX}px`,
+                  top: `${particleY}px`,
+                  animationDelay: `${i * 100}ms`,
+                  opacity: Math.min(1, proximity * (1.2 - (level * 0.15)))
+                }}
+              />
+            );
+          })}
         </div>
       )}
 
-      {/* Creature Reveal with Enhanced Effects */}
+      {/* Creature Reveal with boundary constraints */}
       {isFound && (
         <div
           className="absolute text-6xl animate-bounce"
           style={{
-            left: creaturePosition.x - 30,
-            top: creaturePosition.y - 30,
+            left: Math.max(10, Math.min(creaturePosition.x - 30, gameAreaSize.width - 60)),
+            top: Math.max(10, Math.min(creaturePosition.y - 30, gameAreaSize.height - 60)),
             filter: 'drop-shadow(0 0 30px rgba(255, 255, 255, 1))',
             textShadow: `0 0 20px rgb(${creature.color})`
           }}
@@ -304,3 +334,7 @@ const MultiSensoryMode: React.FC<MultiSensoryModeProps> = ({
 };
 
 export default MultiSensoryMode;
+
+function vibrate(arg0: number) {
+  throw new Error('Function not implemented.');
+}

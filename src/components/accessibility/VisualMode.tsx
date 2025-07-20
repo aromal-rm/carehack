@@ -15,6 +15,7 @@ const VisualMode: React.FC<VisualModeProps> = ({
   cursorPosition,
   creaturePosition,
   detectionRadius,
+  gameAreaSize,
   onCreatureFound,
   isFound,
   creature
@@ -65,8 +66,8 @@ const VisualMode: React.FC<VisualModeProps> = ({
                   borderColor: `rgba(${creature.color}, ${proximity * 0.6})`,
                   width: `${(index + 1) * 100}px`,
                   height: `${(index + 1) * 100}px`,
-                  left: `${creaturePosition.x - ((index + 1) * 50)}px`,
-                  top: `${creaturePosition.y - ((index + 1) * 50)}px`,
+                  left: `${Math.max(0, Math.min(creaturePosition.x - ((index + 1) * 50), gameAreaSize.width - 100))}px`,
+                  top: `${Math.max(0, Math.min(creaturePosition.y - ((index + 1) * 50), gameAreaSize.height - 100))}px`,
                   animationDuration: `${2 - (proximity * 1.5)}s`
                 }}
               />
@@ -75,13 +76,13 @@ const VisualMode: React.FC<VisualModeProps> = ({
         </div>
       )}
 
-      {/* Creature Reveal */}
+      {/* Creature Reveal - ensure position stays within bounds */}
       {isFound && (
         <div
           className="absolute text-6xl animate-bounce"
           style={{
-            left: creaturePosition.x - 30,
-            top: creaturePosition.y - 30,
+            left: Math.max(10, Math.min(creaturePosition.x - 30, gameAreaSize.width - 60)),
+            top: Math.max(10, Math.min(creaturePosition.y - 30, gameAreaSize.height - 60)),
             filter: 'drop-shadow(0 0 20px rgba(255, 255, 255, 0.8))'
           }}
         >

@@ -18,7 +18,7 @@ const ProximityEngine: React.FC<ProximityEngineProps> = ({
   creatureSoundFile
 }) => {
   const { playCreatureSoundWithProximity } = useAudio();
-  const { vibrate } = useHaptics();
+  const { vibrateWithIntensity, vibrateProximityPattern } = useHaptics();
   const lastHapticTime = useRef(0);
 
   useEffect(() => {
@@ -87,15 +87,20 @@ const ProximityEngine: React.FC<ProximityEngineProps> = ({
       const difficultyDelay = Math.max(150, 300 - ((level - 1) * 30));
       
       if (now - lastHapticTime.current > difficultyDelay) {
-        // Stronger vibration when closer to creature
-        // Level-specific intensity scaling
-        const intensityMultiplier = level >= 4 ? 0.7 : 1.0;
-        const duration = Math.floor(adjustedProximity * 100 * intensityMultiplier);
-        vibrate(duration > 0 ? duration : 0);
+        // Use enhanced haptic feedback with distinct intensity levels
+        // Use pattern vibration for better mobile experience
+        if (adjustedProximity > 0.7) {
+          // Very close - strong distinct feedback
+          vibrateProximityPattern(adjustedProximity);
+        } else {
+          // Further away - intensity-based feedback
+          vibrateWithIntensity(adjustedProximity);
+        }
         lastHapticTime.current = now;
       }
     }
-  }, [cursorPosition, creaturePosition, detectionRadius, level, creatureSoundFile, playCreatureSoundWithProximity, vibrate]);
+  }, [cursorPosition, creaturePosition, detectionRadius, level, creatureSoundFile, 
+      playCreatureSoundWithProximity, vibrateWithIntensity, vibrateProximityPattern]);
 
   return null; // This component handles logic only, no rendering
 };
