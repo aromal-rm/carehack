@@ -1,4 +1,4 @@
-# <img src="public\icon.png" width="22.5" height="22.5">Echo Grove
+# <img src="public\icon.png" width="25" height="25"> Echo Grove
 
 > **An Inclusive Sensory Exploration Adventure**
 
