@@ -1,7 +1,5 @@
 # Echo Grove
 
-![Echo Grove Banner](public/banner.png)
-
 > **An Inclusive Sensory Exploration Adventure**
 
 Discover mystical creatures hidden in an enchanted forest using your senses. Designed for all abilities with full accessibility support.
