@@ -137,7 +137,7 @@ We welcome contributions! Please open issues or pull requests for:
 ---
 
 ## 📄 License
-MIT License. See [LICENSE](LICENSE) for details.
+GNU Lesser General Public License v2.1 . See [LICENSE](LICENSE) for details.
 
 ---
 
