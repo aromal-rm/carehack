@@ -18,20 +18,46 @@ export const useTalkBack = (enabled: boolean) => {
     }
 
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
+    utterance.rate = 0.85; // Slightly slower for better clarity
+    utterance.pitch = 1.1; // Slightly higher pitch for more pleasant sound
     utterance.volume = 0.8;
 
-    // Try to use a clear, natural voice
+    // Try to use a smooth, pleasant female or child voice
     const voices = window.speechSynthesis.getVoices();
-    const preferredVoice = voices.find(voice => 
-      voice.name.includes('Google') || 
-      voice.name.includes('Microsoft') ||
+    
+    // First priority: Look for female/child voices from major providers
+    let preferredVoice = voices.find(voice => 
+      (voice.name.toLowerCase().includes('female') || 
+       voice.name.toLowerCase().includes('woman') || 
+       voice.name.toLowerCase().includes('girl') ||
+       voice.name.toLowerCase().includes('child')) && 
+      (voice.name.includes('Google') || voice.name.includes('Microsoft') || voice.name.includes('Apple')) &&
       voice.lang.startsWith('en')
     );
     
+    // Second priority: Any female/child voice
+    if (!preferredVoice) {
+      preferredVoice = voices.find(voice => 
+        (voice.name.toLowerCase().includes('female') || 
+         voice.name.toLowerCase().includes('woman') || 
+         voice.name.toLowerCase().includes('girl') ||
+         voice.name.toLowerCase().includes('child')) &&
+        voice.lang.startsWith('en')
+      );
+    }
+    
+    // Third priority: Any good quality voice
+    if (!preferredVoice) {
+      preferredVoice = voices.find(voice => 
+        voice.name.includes('Google') || 
+        voice.name.includes('Microsoft') ||
+        voice.lang.startsWith('en')
+      );
+    }
+    
     if (preferredVoice) {
       utterance.voice = preferredVoice;
+      console.log('Using voice:', preferredVoice.name);
     }
 
     utterance.onend = () => {
