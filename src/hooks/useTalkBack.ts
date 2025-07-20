@@ -18,24 +18,44 @@ export const useTalkBack = (enabled: boolean) => {
     }
 
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.85; // Slightly slower for better clarity
-    utterance.pitch = 1.1; // Slightly higher pitch for more pleasant sound
-    utterance.volume = 0.8;
+    utterance.rate = 0.9; // Slightly slower for better clarity and smoother sound
+    utterance.pitch = 1.15; // Slightly higher pitch for more feminine/child-like sound
+    utterance.volume = 0.85; // Slightly louder for better clarity
 
     // Try to use a smooth, pleasant female or child voice
     const voices = window.speechSynthesis.getVoices();
+    console.log('Available voices:', voices.map(v => `${v.name} (${v.lang})`));
     
-    // First priority: Look for female/child voices from major providers
+    // Known smooth female voices by specific name (common across platforms)
+    const knownSmoothVoices = [
+      'Google UK English Female', 
+      'Microsoft Zira', 
+      'Samantha',
+      'Google US English Female',
+      'Microsoft Hazel',
+      'Karen',
+      'Victoria'
+    ];
+    
+    // First priority: Look for known smooth female voices
     let preferredVoice = voices.find(voice => 
-      (voice.name.toLowerCase().includes('female') || 
-       voice.name.toLowerCase().includes('woman') || 
-       voice.name.toLowerCase().includes('girl') ||
-       voice.name.toLowerCase().includes('child')) && 
-      (voice.name.includes('Google') || voice.name.includes('Microsoft') || voice.name.includes('Apple')) &&
+      knownSmoothVoices.includes(voice.name) && 
       voice.lang.startsWith('en')
     );
     
-    // Second priority: Any female/child voice
+    // Second priority: Look for female/child voices from major providers
+    if (!preferredVoice) {
+      preferredVoice = voices.find(voice => 
+        (voice.name.toLowerCase().includes('female') || 
+         voice.name.toLowerCase().includes('woman') || 
+         voice.name.toLowerCase().includes('girl') ||
+         voice.name.toLowerCase().includes('child')) && 
+        (voice.name.includes('Google') || voice.name.includes('Microsoft') || voice.name.includes('Apple')) &&
+        voice.lang.startsWith('en')
+      );
+    }
+    
+    // Third priority: Any female/child voice
     if (!preferredVoice) {
       preferredVoice = voices.find(voice => 
         (voice.name.toLowerCase().includes('female') || 
@@ -46,7 +66,7 @@ export const useTalkBack = (enabled: boolean) => {
       );
     }
     
-    // Third priority: Any good quality voice
+    // Fourth priority: Any good quality voice
     if (!preferredVoice) {
       preferredVoice = voices.find(voice => 
         voice.name.includes('Google') || 
